@@ -4,6 +4,10 @@
  */
 package cds;
 
+import java.util.List;
+//import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.concurrent.CopyOnWriteArrayList;
 /**
  *
  * @author georgehatzinotas
@@ -14,12 +18,13 @@ public class Node {
     int degree;
     String color;
     boolean outstanding;
+    List<Integer> sibList = new CopyOnWriteArrayList<Integer>();
+    Iterator it;
 
     public Node(int id, int degree) {
         this.id = id;
         this.degree = degree;
         color = null;
         outstanding = false;
-
     }
 }
