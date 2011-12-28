@@ -1,8 +1,6 @@
-/*
- * To change this template, choose Tools | Templates
- * and open the template in the editor.
- */
 package cds;
+
+import java.util.Iterator;
 
 /**
  *
@@ -23,6 +21,7 @@ public class CDS {
     }; //αν το graph[i][i]==true τότε το κόμβος με id=i είναι η ρίζα του δέντρου
     static int degree[] = {0, 1, 1, 2, 2, 2, 3, 4, 5};
     static int n = 9;           // Αριθμός κόμβων
+    private static boolean done = false;
 
     /**
      * @param args the command line arguments
@@ -39,102 +38,156 @@ public class CDS {
             komvos[i] = new Node(i, degree[i]);
         }
 
-        // Δημιουργία λίστας αδερφών για κάθε κόμβο
+        // Δημιουργία λίστών αδερφών, γονιών, παιδιών, γειτόνων για κάθε κόμβο
         for (i = 0; i < n; i++) {
             for (int l = 0; l < n; l++) {
-                if (komvos[i].degree == komvos[l].degree && graph[i][l] && i != l) {
-                    //System.out.println(i+1+","+(l+1));
-                    komvos[i].sibList.add(l);
+                if ((graph[i][l] || graph[l][i]) && i != l) {
+                    komvos[i].neighbors.add(l);
+                    if (komvos[i].degree == komvos[l].degree) {
+                        komvos[i].siblings.add(l);
+                    } else if (komvos[i].degree == komvos[l].degree + 1) {
+                        komvos[i].parents.add(l);
+                    } else if (komvos[i].degree + 1 == komvos[l].degree) {
+                        komvos[i].children.add(l);
+                    }
                 }
             }
-            komvos[i].it = komvos[i].sibList.iterator();  // Iterator για τη λίστα των αδερφών για κάθε κόμβο
         }
 
+        for (i = 0; (i < 9 && !graph[i][i]); i++);      // βρες τη ρίζα i -->  graph[i][i]=true
+        komvos[i].color = "Black";                      // κάνε τη ρίζα μάυρη
+        komvos[i].outstanding = true;
+        komvos[i].BCNM = true;
+        CNM("Black", i, komvos);                        // στείλε CNM
 
-        for (i = 0; (i < 9 && !graph[i][i]); i++);
-        komvos[i].color = "Black";
-        CNM("Black", i, komvos);
-        for (i = 0; i < n; i++) {
-            System.out.println(komvos[i].outstanding);
-        }
+//        for (int l = 0; l < n; l++) {
+//            System.out.println(komvos[l].outstanding);
+//        }
 
 
-        for (i = 0; i < n; i++) {
-//            if (komvos[i].color.equals("Black") || komvos[i].color.equals("Blue")) {
-                System.out.println(komvos[i].color);
+        i = 1;
+        while (komvos[n - 1].color == null) {
+            if (komvos[i].color == null) {
+                fire(i, komvos);
+                i = (i + 1) % n;
+                System.out.println(i);
+            }
+//            for (int l = 0; l < n; l++) {
+//                System.out.println(komvos[l].outstanding);
 //            }
+//            System.out.println();
+        }
+
+        for (i = 0; i < n; i++) {
+            System.out.println(komvos[i].outstanding + "\t" + komvos[i].color + "\t" + komvos[i].BCNM);
         }
     }
 
     static void CNM(String color, int i, Node komvos[]) {
-        int max = 0;
+        int max;
         int k;
-        boolean black;
-        boolean blue;
-
-        for (k = 0; k < n; k++) {
-            // Αρχικά κάνω outstanding τους εκάστοτε γείτονες
-            if (!komvos[k].outstanding && graph[i][k]) {        // αν ο κόμβός είναι παιδί του κόμβου που έστειλε CNM
-                if (!komvos[k].it.hasNext()) {                  // αν ο κόμβος δεν έχει αδερφό
-                    komvos[k].outstanding = true;               // κάνε τον outstanding
-                } else {                                        // αλλιώς αν έχει αδερφό
-                    max = k;
-                    while (komvos[k].it.hasNext()) {            // έλεγξε τα αδέρφια
-                        int value = (Integer) komvos[k].it.next();
-                        //System.out.println("val=" + value);
-                        if (graph[i][value]) {
-                            max = (max > value) ? max : value;  // βρες ποιος έχει τη μεγαλύτερη ενέργεια (id)
-                        }
+        int bro;
+        int neigh;
+        // Αρχικά κάνω outstanding τους γείτονες
+        Iterator nit = komvos[i].neighbors.iterator();
+        while (nit.hasNext()) {                                 // για κάθε γείτονα του i
+            neigh = (Integer) nit.next();
+            Iterator sit = komvos[neigh].siblings.iterator();   // Iterator για τα αδέρφια του γείτονα
+            if (!komvos[neigh].outstanding) {                   // αν δεν είναι outstanding
+                if (!sit.hasNext()) {                           // αν δεν έχει αδέφια  
+                    komvos[neigh].outstanding = true;           // γίνεται outstanding
+                    System.out.println("o κόμβος " + i + " έκανε outstanding τον κόμβο " + neigh);
+                } else {
+                    max = komvos[neigh].id;
+                    while (sit.hasNext()) {                 // για κάθε αδερφό του γείτονα
+                        bro = (Integer) sit.next();         // αδερφός του γείτονα
+//                        System.out.println(bro);
+//                        if (komvos[bro].color != null) {      // αν δε έχει αποφασίσει το χρώμα του
+                            max = (max > komvos[bro].id) ? max : komvos[bro].id; // βρες ποιος έχει τη μεγαλύτερη ενέργεια (id)
+//                        }
+                    }
+                    if (!komvos[max].outstanding) {
+                        komvos[max].outstanding = true;                 // και κάνε τον outstanding
+                        System.out.println("o κόμβος " + i + " έκανε outstanding τον κόμβο με max id=" + max);
                     }
                 }
-                komvos[max].outstanding = true;                 // κάνε τον outstanding
+
             }
         }
 
-        // αν το CNM είναι Black
-        if (color.equals("Black")) {
-            for (k = 0; k < n; k++) {
-                if (komvos[k].outstanding && komvos[k].color == null) {
-                    komvos[k].color = "White";
-                    CNM("White", k, komvos);
-                }
+
+
+        if (color.equals("Black")) {                // αν το CNM είναι Black στείλε σε όλους
+            nit = komvos[i].neighbors.iterator();   // ειδόποίησε τους γείτονες
+            while (nit.hasNext()) {
+                k = (Integer) nit.next();
+                komvos[k].BCNM = true;
             }
-        } else if (color.equals("White")) {
-            black = false;
-            blue = false;
-            for (k = 0; k < n; k++) {
-                if (komvos[k].color != null) {
-                    if (graph[i][k] && komvos[k].color.equals("Black")) {
-                        black = true;
-                        break;
-                    }
-                }
-            }
-            if (!black) {
-                komvos[i].color = "Black";
-                for (k = 0; k < n; k++) {
-                    // αν έχει blue πατέρα
-                    if (graph[i][k] && komvos[k].degree == komvos[i].degree - 1 && komvos[k].color.equals("Blue")) {
-                        blue = true;
-                        break;
-                    }
-                }
-                Connect(k, komvos);
-                CNM("Black", i, komvos);
-            }
-        } // αν το CNM είναι BLUE μην κάνεις τίποτα
+        }
+
+
+        // αν το CNM είναι Blue ή White μην κάνεις τίποτα
         //        throw new UnsupportedOperationException("Not yet implemented");
     }
 
     private static void Connect(int k, Node komvos[]) {
-        try {
-            komvos[k].color = "Blue";
-            CNM("Blue", k, komvos);
+        komvos[k].color = "Blue";
+        CNM("Blue", k, komvos);
+//        throw new UnsupportedOperationException("Not yet implemented");
+    }
+
+    private static void fire(int i, Node komvos[]) {
+        if (komvos[i].outstanding && komvos[i].color == null) {
+            if (komvos[i].BCNM) {
+                komvos[i].color = "White";
+                CNM("White", i, komvos);
+            } else {
+                int max = 0;
+                int k;
+                boolean black;
+                boolean blue;
+                // Αρχικά κάνω outstanding τους γείτονες
+                Iterator nit = komvos[i].neighbors.iterator();
+                black = false;
+                blue = false;
+                nit = komvos[i].neighbors.iterator();
+                while (nit.hasNext()) {                     // έλεγξε αν έχεις μαύρο πατέρα ή αδερφό
+                    k = (Integer) nit.next();
+                    if (komvos[k].color != null) {
+                        if (komvos[k].color.equals("Black")) {
+                            black = true;
+                            break;
+                        }
+                    }
+                }
+                if (!black) {                           // αν δεν έχεις
+                    komvos[i].color = "Black";          // βάψου μαύρος
+                    CNM("Black", i, komvos);
+                    Iterator pit = komvos[i].neighbors.iterator();
+                    while (pit.hasNext()) {
+                        int papa = (Integer) pit.next();
+                        if (komvos[papa].color != null) {
+                            if (komvos[papa].color.equals("Blue")) {
+                                blue = true;
+                                break;
+                            }
+                        }
+                    }
+                    if (!blue) {
+                        max = 0;
+                        pit = komvos[i].parents.iterator();
+                        while (pit.hasNext()) {
+                            int papa = (Integer) pit.next();
+                            if (komvos[papa].color.equals("White")) {
+                                max = (max > komvos[papa].id) ? max : komvos[papa].id;
+                            }
+                        }
+                        Connect(max, komvos);
+                    }
+                }
+            }
+
         }
-        catch (java.lang.ArrayIndexOutOfBoundsException e){
-            
-        };
-        
 //        throw new UnsupportedOperationException("Not yet implemented");
     }
 }

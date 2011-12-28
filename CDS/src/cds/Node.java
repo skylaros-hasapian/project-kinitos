@@ -6,8 +6,8 @@ package cds;
 
 import java.util.List;
 //import java.util.ArrayList;
-import java.util.Iterator;
 import java.util.concurrent.CopyOnWriteArrayList;
+
 /**
  *
  * @author georgehatzinotas
@@ -18,13 +18,17 @@ public class Node {
     int degree;
     String color;
     boolean outstanding;
-    List<Integer> sibList = new CopyOnWriteArrayList<Integer>();
-    Iterator it;
+    boolean BCNM;
+    List<Integer> siblings = new CopyOnWriteArrayList<Integer>();
+    List<Integer> parents = new CopyOnWriteArrayList<Integer>();
+    List<Integer> neighbors = new CopyOnWriteArrayList<Integer>();
+    List<Integer> children = new CopyOnWriteArrayList<Integer>();
 
     public Node(int id, int degree) {
         this.id = id;
         this.degree = degree;
         color = null;
         outstanding = false;
+        BCNM = false;
     }
 }
