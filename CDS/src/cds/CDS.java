@@ -21,14 +21,13 @@ public class CDS {
     }; //αν το graph[i][i]==true τότε το κόμβος με id=i είναι η ρίζα του δέντρου
     static int degree[] = {0, 1, 1, 2, 2, 2, 3, 4, 5};
     static int n = 9;           // Αριθμός κόμβων
-    private static boolean done = false;
 
     /**
      * @param args the command line arguments
      */
     public static void main(String[] args) {
         int i;                       // Indexes
-
+        boolean done = false;
 
         // Δημιουργία πίνακα κόμβων
         Node[] komvos = new Node[n];
@@ -56,30 +55,34 @@ public class CDS {
 
         for (i = 0; (i < 9 && !graph[i][i]); i++);      // βρες τη ρίζα i -->  graph[i][i]=true
         komvos[i].color = "Black";                      // κάνε τη ρίζα μάυρη
-        komvos[i].outstanding = true;
-        komvos[i].BCNM = true;
+        komvos[i].outstanding = true;                   // και outstanding
         CNM("Black", i, komvos);                        // στείλε CNM
 
-//        for (int l = 0; l < n; l++) {
-//            System.out.println(komvos[l].outstanding);
-//        }
-
-
-        i = 1;
-        while (komvos[n - 1].color == null) {
-            if (komvos[i].color == null) {
-                fire(i, komvos);
-                i = (i + 1) % n;
-                System.out.println(i);
+        while (!done) {
+            for (i = 0; i < n; i++) {
+                if (komvos[i].color == null) {
+                    fire(i, komvos);
+                }
             }
-//            for (int l = 0; l < n; l++) {
-//                System.out.println(komvos[l].outstanding);
-//            }
-//            System.out.println();
+            done = true;
+            for (i = 0; i < n; i++) {
+                if (komvos[i].color == null) {
+                    done = false;
+                    break;
+                }
+            }
         }
 
+        System.out.println("out\tcolor\tBCNM");
         for (i = 0; i < n; i++) {
             System.out.println(komvos[i].outstanding + "\t" + komvos[i].color + "\t" + komvos[i].BCNM);
+        }
+
+        System.out.println("The CDS is the following set:");
+        for (i = 0; i < n; i++) {
+            if (komvos[i].color.equals("Black") || komvos[i].color.equals("Blue")) {
+                System.out.println(i);
+            }
         }
     }
 
@@ -96,19 +99,18 @@ public class CDS {
             if (!komvos[neigh].outstanding) {                   // αν δεν είναι outstanding
                 if (!sit.hasNext()) {                           // αν δεν έχει αδέφια  
                     komvos[neigh].outstanding = true;           // γίνεται outstanding
-                    System.out.println("o κόμβος " + i + " έκανε outstanding τον κόμβο " + neigh);
+//                    System.out.println("o κόμβος " + i + " έκανε outstanding τον κόμβο " + neigh);
                 } else {
                     max = komvos[neigh].id;
                     while (sit.hasNext()) {                 // για κάθε αδερφό του γείτονα
                         bro = (Integer) sit.next();         // αδερφός του γείτονα
-//                        System.out.println(bro);
-//                        if (komvos[bro].color != null) {      // αν δε έχει αποφασίσει το χρώμα του
+                        if (komvos[bro].color == null) {      // αν δε έχει αποφασίσει το χρώμα του
                             max = (max > komvos[bro].id) ? max : komvos[bro].id; // βρες ποιος έχει τη μεγαλύτερη ενέργεια (id)
-//                        }
+                        }
                     }
                     if (!komvos[max].outstanding) {
                         komvos[max].outstanding = true;                 // και κάνε τον outstanding
-                        System.out.println("o κόμβος " + i + " έκανε outstanding τον κόμβο με max id=" + max);
+//                        System.out.println("o κόμβος " + i + " έκανε outstanding τον κόμβο με max id=" + max);
                     }
                 }
 
@@ -146,7 +148,6 @@ public class CDS {
                 int k;
                 boolean black;
                 boolean blue;
-                // Αρχικά κάνω outstanding τους γείτονες
                 Iterator nit = komvos[i].neighbors.iterator();
                 black = false;
                 blue = false;
