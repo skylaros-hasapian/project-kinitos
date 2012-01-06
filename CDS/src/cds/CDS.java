@@ -9,19 +9,34 @@ import java.util.Iterator;
 public class CDS {
 
     static boolean graph[][] = {
-        {true, true, true, false, false, false, false, false, false},
-        {true, false, false, true, true, true, false, false, false},
-        {true, false, false, false, true, false, false, false, false},
-        {false, true, false, false, false, true, false, false, false},
-        {false, true, true, false, false, true, false, false, false},
-        {false, true, false, true, true, false, true, false, false},
-        {false, false, false, false, false, true, false, true, false},
-        {false, false, false, false, false, false, true, false, true},
-        {false, false, false, false, false, false, false, true, false}
-    }; //αν το graph[i][i]==true τότε το κόμβος με id=i είναι η ρίζα του δέντρου
-    static int degree[] = {0, 1, 1, 2, 2, 2, 3, 4, 5};
-    static int n = 9;           // Αριθμός κόμβων
+        {true, true, true, false, false, false, false, false, false, false},
+        {true, false, false, true, false, false, false, false, false, false},
+        {true, false, false, false, true, true, false, false, false, false},
+        {false, true, false, false, false, false, true, true, false, false},
+        {false, false, true, false, false, true, false, false, true, false},
+        {false, false, true, false, true, false, false, false, false, true},
+        {false, false, false, true, false, false, false, false, false, false},
+        {false, false, false, true, false, false, false, false, false, false},
+        {false, false, false, false, true, false, false, false, false, false},
+        {false, false, false, false, false, true, false, false, false, false}
+    };
+    static int degree[] = {0, 1, 1, 2, 2, 2, 3, 3, 3, 3};
+    static int n = 10;           // Αριθμός κόμβων
 
+//// working example
+//    static boolean graph[][] = {
+//        {true, true, true, false, false, false, false, false, false},
+//        {true, false, false, true, true, true, false, false, false},
+//        {true, false, false, false, true, false, false, false, false},
+//        {false, true, false, false, false, true, false, false, false},
+//        {false, true, true, false, false, true, false, false, false},
+//        {false, true, false, true, true, false, true, false, false},
+//        {false, false, false, false, false, true, false, true, false},
+//        {false, false, false, false, false, false, true, false, true},
+//        {false, false, false, false, false, false, false, true, false}
+//    }; //αν το graph[i][i]==true τότε το κόμβος με id=i είναι η ρίζα του δέντρου
+//    static int degree[] = {0, 1, 1, 2, 2, 2, 3, 4, 5};
+//    static int n = 9;           // Αριθμός κόμβων
     /**
      * @param args the command line arguments
      */
